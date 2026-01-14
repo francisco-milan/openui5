@@ -742,6 +742,12 @@ sap.ui.define([
 					flexibilityServices: '[{"connector": "SessionStorageConnector"}]'
 				}
 			},
+			"write/api/ControlVariantWriteAPI": {
+				group: "Write API",
+				coverage: {
+					only: ["sap/ui/fl/write/api/ControlVariantWriteAPI"]
+				}
+			},
 			"write/api/FeaturesAPI": {
 				group: "Write API",
 				coverage: {

@@ -10,7 +10,7 @@ sap.ui.define([
 
 	QUnit.module("FilterBar", {
 		beforeEach: function () {
-			this.oFilterBar = new VHFilterBar({
+			this.oFilterBar = new VHFilterBar("FB1", {
 				//delegate: { name: "delegates/GenericVhFilterBarDelegate", payload: {} }
 			});
 

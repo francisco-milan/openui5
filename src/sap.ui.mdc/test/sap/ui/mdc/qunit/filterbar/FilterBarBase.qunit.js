@@ -17,7 +17,7 @@ sap.ui.define([
 
 	QUnit.module("FilterBarBase API tests", {
 		beforeEach: function () {
-			this.oFilterBarBase = new FilterBarBase({
+			this.oFilterBarBase = new FilterBarBase("FB1", {
 				delegate: { name: "test-resources/sap/ui/mdc/qunit/filterbar/UnitTestMetadataDelegate", payload: { modelName: undefined, collectionName: "test" } }
             });
 		},
@@ -101,7 +101,7 @@ sap.ui.define([
     });
 
     QUnit.test("check reaction to the FilterField 'submit' event", function(assert){
-        const oFilterField = new FilterField({
+        const oFilterField = new FilterField("FF1", {
 					label: "Test"
 				});
         sinon.stub(this.oFilterBarBase, "triggerSearch");
@@ -140,7 +140,7 @@ sap.ui.define([
     });
 
     QUnit.test("check reaction to the basic search 'submit' event", function(assert){
-        const oFilterField = new FilterField();
+        const oFilterField = new FilterField("FF1");
         sinon.stub(this.oFilterBarBase, "triggerSearch");
 
         assert.ok(!oFilterField.hasListeners("submit"));
@@ -161,7 +161,7 @@ sap.ui.define([
 
     QUnit.test("check reaction to the basic search 'submit' with an filter change event", function(assert){
         let nIdx = 0;
-        const oFilterField = new FilterField();
+        const oFilterField = new FilterField("FF1");
 
         let fTestPromiseResolve = null;
         const oTestPromise = new Promise(function(resolve) {
@@ -205,7 +205,7 @@ sap.ui.define([
 			fPromiseResolved = resolve;
 		});
 
-		const oFilterField = new FilterField();
+		const oFilterField = new FilterField("FF1");
 		this.oFilterBarBase.addFilterItem(oFilterField);
 
 		this.oFilterBarBase.setLiveMode(true);
@@ -242,7 +242,7 @@ sap.ui.define([
 			fPromiseResolved = resolve;
 		});
 
-		const oFilterField = new FilterField();
+		const oFilterField = new FilterField("FF1");
 		this.oFilterBarBase.addFilterItem(oFilterField);
 
 		this.oFilterBarBase.setLiveMode(true);
@@ -267,7 +267,7 @@ sap.ui.define([
 			fPromiseResolved = resolve;
 		});
 
-		const oFilterField = new FilterField();
+		const oFilterField = new FilterField("FF1");
 		this.oFilterBarBase.addFilterItem(oFilterField);
 
 		this.oFilterBarBase.setLiveMode(false);
@@ -882,7 +882,7 @@ sap.ui.define([
         });
 
         //SUBMIT
-        const oFilterField = new FilterField();
+        const oFilterField = new FilterField("FF1");
         this.oFilterBarBase.setBasicSearchField(oFilterField);
         oFilterField.fireSubmit({promise: Promise.resolve()});
 		await nextUIUpdate();
@@ -1010,7 +1010,7 @@ sap.ui.define([
     QUnit.module("_enhanceBasicSearchField");
 
     QUnit.test("should log a warning when the 'propertyKey' of the given SearchField is not '$search' and then default to it", function (assert) {
-        const oFilterBarBase = new FilterBarBase({
+        const oFilterBarBase = new FilterBarBase("FB1", {
             delegate: {
                 name: "test-resources/sap/ui/mdc/qunit/filterbar/UnitTestMetadataDelegate",
                 payload: {
@@ -1047,11 +1047,12 @@ sap.ui.define([
         assert.ok(fnEnhanceFilterFieldStub.calledWith(oBasicSearchFieldMock), "should call '_enhanceFilterField' with correct value");
 
         fnLogWarningSpy.restore();
+        oFilterBarBase.destroy();
     });
 
     QUnit.module("Accessibility", {
         beforeEach: async function () {
-			this.oFilterBarBase = new FilterBarBase({
+			this.oFilterBarBase = new FilterBarBase("FB1", {
 				delegate: { name: "test-resources/sap/ui/mdc/qunit/filterbar/UnitTestMetadataDelegate", payload: { modelName: undefined, collectionName: "test" } }
             });
             this.oRb = Library.getResourceBundleFor("sap.ui.mdc");

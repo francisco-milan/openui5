@@ -1580,7 +1580,7 @@ sap.ui.define([
 			}
 
 			const LayoutItem = this._cLayoutItem;
-			const oLayoutItem = new LayoutItem();
+			const oLayoutItem = new LayoutItem(this.getId() + "-item-" + oFilterItem.getId());
 			oLayoutItem.setFilterField(oFilterItem);
 
 			this._oFilterBarLayout.insertFilterField(oLayoutItem, nIdx);

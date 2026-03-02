@@ -3229,14 +3229,16 @@ sap.ui.define([
 	};
 
 	/**
-	 * Returns the header context which allows binding to <code>$count</code> or
-	 * <code>@$ui5.context.isSelected</code>.
+	 * Returns the header context which allows binding to <code>$count</code>,
+	 * <code>@$ui5.context.isOutdated</code>, or <code>@$ui5.context.isSelected</code>.
 	 *
 	 * @returns {sap.ui.model.odata.v4.Context|null}
 	 *   The header context or <code>null</code> if the binding is relative and has no context
 	 *
 	 * @public
 	 * @see #getCount
+	 * @see sap.ui.model.odata.v4.Context#isOutdated
+	 * @see sap.ui.model.odata.v4.Context#isSelected
 	 * @since 1.45.0
 	 */
 	ODataListBinding.prototype.getHeaderContext = function () {

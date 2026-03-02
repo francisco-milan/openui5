@@ -24578,8 +24578,12 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 	// Support Context#requestSideEffects for single entities if there is no visual grouping. It
 	// always refreshes the complete entity and the grand total. Messages are not yet requested.
 	// JIRA: CPOUI5ODATAV4-3258
+	//
+	// Context#setOutdated and Context#isOutdated are supported for header contexts.
+	// JIRA: CPOUI5ODATAV4-3392
 	QUnit.test("Data Aggregation: leaves' key predicates", function (assert) {
 		var oBinding,
+			oHeaderContext,
 			oModel = this.createSalesOrdersModel123({autoExpandSelect : true}),
 			oTable,
 			sView = `
@@ -24608,7 +24612,8 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 	<Text id="lifecycleStatus" text="{LifecycleStatus}"/>
 	<Text id="grossAmount" text="{= %{GrossAmount} }"/>
 	<Text id="salesOrderID" text="{SalesOrderID}"/>
-</Table>`,
+</Table>
+<Text id="isOutdated" text="{= %{@$ui5.context.isOutdated} }"/>`,
 			that = this;
 
 		this.expectRequest("SalesOrderList?sap-client=123&custom=foo&$apply="
@@ -24630,11 +24635,24 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 			.expectChange("level", [0, 1, 1, 1])
 			.expectChange("lifecycleStatus", [null, "Z", "Y", "X"])
 			.expectChange("grossAmount", ["6", "1", "2", "3"])
-			.expectChange("salesOrderID", [null, "26", "25", "24"]);
+			.expectChange("salesOrderID", [null, "26", "25", "24"])
+			.expectChange("isOutdated");
 
 		return this.createView(assert, sView, oModel).then(function () {
 			oTable = that.oView.byId("table");
 			oBinding = oTable.getBinding("items");
+			oHeaderContext = oBinding.getHeaderContext();
+
+			// code under test (JIRA: CPOUI5ODATAV4-3392)
+			assert.strictEqual(oHeaderContext.isOutdated(), undefined);
+			assert.strictEqual(oHeaderContext.getProperty("@$ui5.context.isOutdated"), undefined);
+
+			that.expectChange("isOutdated", undefined);
+
+			that.oView.byId("isOutdated").setBindingContext(oHeaderContext);
+
+			return that.waitForChanges(assert);
+		}).then(function () {
 			const aCurrentContexts = oBinding.getCurrentContexts();
 
 			assert.deepEqual(aCurrentContexts.map(getPath), [
@@ -24649,8 +24667,7 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 			assert.strictEqual(oContext.getProperty("@$ui5.node.isTotal"), false);
 			// code under test
 			assert.strictEqual(oContext.isAggregated(), false, "JIRA: CPOUI5ODATAV4-2760");
-			assert.strictEqual(oBinding.getHeaderContext().isAggregated(), false,
-				"JIRA: CPOUI5ODATAV4-2760");
+			assert.strictEqual(oHeaderContext.isAggregated(), false, "JIRA: CPOUI5ODATAV4-2760");
 
 			assert.throws(function () {
 				// code under test (JIRA: CPOUI5ODATAV4-3257)
@@ -24668,6 +24685,16 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 					assert.strictEqual(oError.message,
 						"Unsupported on aggregated data: " + aCurrentContexts[0]);
 				});
+		}).then(function () {
+			that.expectChange("isOutdated", true);
+
+			// code under test (JIRA: CPOUI5ODATAV4-3392)
+			oHeaderContext.setOutdated(true); //TODO: Will be called by ODLB#doSetProperty
+
+			assert.strictEqual(oHeaderContext.isOutdated(), true);
+			assert.strictEqual(oHeaderContext.getProperty("@$ui5.context.isOutdated"), true);
+
+			return that.waitForChanges(assert);
 		}).then(function () {
 			that.expectChange("lifecycleStatus", [, "Z*"])
 				.expectRequest("PATCH SalesOrderList('26')?sap-client=123&custom=foo", {
@@ -24750,6 +24777,16 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 				that.waitForChanges(assert, "requestRefresh")
 			]);
 
+			that.expectChange("isOutdated", false);
+
+			// code under test (JIRA: CPOUI5ODATAV4-3392)
+			oHeaderContext.setOutdated(false); //TODO: Will be called by ODLB#reset
+
+			assert.strictEqual(oHeaderContext.isOutdated(), false);
+			assert.strictEqual(oHeaderContext.getProperty("@$ui5.context.isOutdated"), false);
+
+			await that.waitForChanges(assert);
+
 			expect();
 			await Promise.all([
 				// code under test (JIRA: CPOUI5ODATAV4-3258)
@@ -24772,7 +24809,8 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 				.expectChange("level", [1, 1])
 				.expectChange("lifecycleStatus", ["Z", "Y"])
 				.expectChange("grossAmount", [undefined, undefined])
-				.expectChange("salesOrderID", [null, null]);
+				.expectChange("salesOrderID", [null, null])
+				.expectChange("isOutdated", undefined); // oHeaderContext is destroyed
 
 			oTable.bindItems({
 				path : "/SalesOrderList",

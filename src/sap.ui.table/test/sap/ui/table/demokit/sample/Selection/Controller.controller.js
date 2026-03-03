@@ -5,9 +5,8 @@ sap.ui.define([
 	"sap/m/MessageToast",
 	"sap/ui/model/json/JSONModel",
 	"sap/ui/core/format/DateFormat",
-	"sap/ui/thirdparty/jquery",
 	"sap/ui/core/date/UI5Date"
-], function(Log, library, Controller, MessageToast, JSONModel, DateFormat, jQuery, UI5Date) {
+], function(Log, library, Controller, MessageToast, JSONModel, DateFormat, UI5Date) {
 	"use strict";
 
 	const SelectionBehavior = library.SelectionBehavior;
@@ -22,14 +21,16 @@ sap.ui.define([
 			oView.setModel(oJSONModel);
 
 			const aSelectionModes = [];
-			jQuery.each(SelectionMode, function(k, v) {
+			Object.keys(SelectionMode).forEach(function(k) {
+				const v = SelectionMode[k];
 				if (k !== SelectionMode.Multi) {
 					aSelectionModes.push({key: k, text: v});
 				}
 			});
 
 			const aSelectionBehaviors = [];
-			jQuery.each(SelectionBehavior, function(k, v) {
+			Object.keys(SelectionBehavior).forEach(function(k) {
+				const v = SelectionBehavior[k];
 				aSelectionBehaviors.push({key: k, text: v});
 			});
 
@@ -47,9 +48,14 @@ sap.ui.define([
 
 			const oDateFormat = DateFormat.getDateInstance({source: {pattern: "timestamp"}, pattern: "dd/MM/yyyy"});
 
-			jQuery.ajax(sap.ui.require.toUrl("sap/ui/demo/mock/products.json"), {
-				dataType: "json",
-				success: function(oData) {
+			fetch(sap.ui.require.toUrl("sap/ui/demo/mock/products.json"))
+				.then(function(response) {
+					if (!response.ok) {
+						throw new Error("HTTP error " + response.status);
+					}
+					return response.json();
+				})
+				.then(function(oData) {
 					const aTemp1 = [];
 					const aTemp2 = [];
 					const aSuppliersData = [];
@@ -74,11 +80,10 @@ sap.ui.define([
 					oData.Categories = aCategoryData;
 
 					oModel.setData(oData);
-				},
-				error: function() {
+				})
+				.catch(function() {
 					Log.error("failed to load json");
-				}
-			});
+				});
 
 			return oModel;
 		},

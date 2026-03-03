@@ -58,9 +58,7 @@ sap.ui.define([
 	"sap/ui/mdc/enums/OperatorName",
 	"sap/ui/mdc/enums/TableActionPosition",
 	"sap/m/Menu",
-	"sap/ui/fl/variants/VariantManagement",
-	"sap/ui/table/rowmodes/Fixed",
-	"sap/m/plugins/TitleProvider"
+	"sap/ui/fl/variants/VariantManagement"
 ], function(
 	TableQUnitUtils,
 	Element,
@@ -119,8 +117,7 @@ sap.ui.define([
 	OperatorName,
 	TableActionPosition,
 	Menu,
-	VariantManagement,
-	FixedRowMode
+	VariantManagement
 ) {
 	"use strict";
 

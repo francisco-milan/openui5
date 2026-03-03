@@ -3,16 +3,10 @@
  */
 sap.ui.define([
 	"../utils/TableUtils",
-	"sap/ui/core/Element",
-	"sap/ui/core/RenderManager",
-	"sap/ui/thirdparty/jquery",
-	"sap/ui/Device"
+	"sap/ui/core/Element"
 ], function(
 	TableUtils,
-	Element,
-	RenderManager,
-	jQuery,
-	Device
+	Element
 ) {
 	"use strict";
 

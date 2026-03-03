@@ -1768,8 +1768,7 @@ sap.ui.define([
 			return wait(0);
 		}.bind(this)).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA_WITH_FILTERBAR"),
-				"'To start, set the relevant filters.' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA_WITH_FILTERBAR"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 
@@ -1782,8 +1781,10 @@ sap.ui.define([
 			return wait(0);
 		}.bind(this)).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA_WITH_FILTERBAR"),
-				"'To start, set the relevant filters.' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA_WITH_FILTERBAR_TITLE"),
+				"Correct no data title is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getDescription(), oRb.getText("table.NO_DATA_WITH_FILTERBAR_DESCRIPTION"),
+				"Correct no data description is displayed");
 			assert.strictEqual(this.oTable._oTable.getNoData().getIllustrationType(), IllustratedMessageType.BeforeSearch);
 		}.bind(this));
 	});
@@ -1793,7 +1794,7 @@ sap.ui.define([
 
 		return this.oTable.initialized().then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 
@@ -1803,7 +1804,9 @@ sap.ui.define([
 
 		return this.oTable.initialized().then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA"), "'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA_TITLE"), "Correct no data title is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getDescription(), oRb.getText("table.NO_DATA_DESCRIPTION"),
+				"Correct no data description is displayed");
 			assert.strictEqual(this.oTable._oTable.getNoData().getIllustrationType(), IllustratedMessageType.NoEntries);
 		}.bind(this));
 	});
@@ -1813,8 +1816,7 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"),
-				"'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 
@@ -1824,8 +1826,10 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA"),
-				"'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA_TITLE"),
+				"Correct no data title is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getDescription(), oRb.getText("table.NO_DATA_DESCRIPTION"),
+				"Correct no data description is displayed");
 			assert.strictEqual(this.oTable._oTable.getNoData().getIllustrationType(), IllustratedMessageType.NoEntries);
 		}.bind(this));
 	});
@@ -1838,8 +1842,7 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_RESULTS"),
-				"'No data available. Try adjusting the filter settings.' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_RESULTS"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 
@@ -1865,7 +1868,7 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "'No data available'");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 
@@ -1875,14 +1878,16 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA"), "'No data available'");
+			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA_TITLE"), "Correct no data title is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getDescription(), oRb.getText("table.NO_DATA_DESCRIPTION"),
+				"Correct no data description is displayed");
 		}.bind(this));
 	});
 
 	QUnit.test("noDataText - Table without FilterBar and internal filters and the table is bound", function(assert) {
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 
@@ -1891,7 +1896,9 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA"), "'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA_TITLE"), "Correct no data title is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getDescription(),
+			oRb.getText("table.NO_DATA_DESCRIPTION"), "Correct no data description is displayed");
 		}.bind(this));
 	});
 
@@ -1900,7 +1907,7 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_DATA"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 
@@ -1910,10 +1917,10 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA"),
-				"'No data available' is displayed");
-			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA"),
-				"'No data available' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getTitle(), oRb.getText("table.NO_DATA_TITLE"),
+				"Correct no data title is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData().getDescription(), oRb.getText("table.NO_DATA_DESCRIPTION"),
+				"Correct no data description is displayed");
 		}.bind(this));
 	});
 
@@ -1922,8 +1929,7 @@ sap.ui.define([
 
 		return TableQUnitUtils.waitForBindingInfo(this.oTable).then(function() {
 			const oRb = Library.getResourceBundleFor("sap.ui.mdc");
-			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_RESULTS"),
-				"'No data available. Try adjusting the filter settings.' is displayed");
+			assert.strictEqual(this.oTable._oTable.getNoData(), oRb.getText("table.NO_RESULTS"), "Correct no data text is displayed");
 		}.bind(this));
 	});
 

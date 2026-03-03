@@ -321,7 +321,7 @@ sap.ui.define([
 		var oResourceBundle = Library.getResourceBundleFor("sap.m");
 
 		var oIllustratedMessage = new IllustratedMessage({
-			illustrationType: MLibrary.IllustratedMessageType.AddingColumns,
+			illustrationType: MLibrary.IllustratedMessageType.NoColumnsSet,
 			title: oResourceBundle.getText("TABLE_NO_COLUMNS_TITLE"),
 			description: oResourceBundle.getText("TABLE_NO_COLUMNS_DESCRIPTION")
 		});

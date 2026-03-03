@@ -129,7 +129,7 @@ sap.ui.define([
 			 * greater }; Other values than functions will be ignored.
 			 * @deprecated As of Version 1.117, see the <code>showColumnVisibilityMenu</code> property of <code>sap.ui.table.Table</code> for details.
 			 */
-			columnVisibilityMenuSorter: {type: "any", group: "Appearance", defaultValue: null},
+			columnVisibilityMenuSorter: {type: "any", group: "Appearance", defaultValue: null, deprecated: true},
 
 			/**
 			 * Setting collapseRecursive to true means, that when collapsing a node all subsequent child nodes will also be collapsed.

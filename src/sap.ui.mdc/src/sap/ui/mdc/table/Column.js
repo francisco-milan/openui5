@@ -107,7 +107,8 @@ sap.ui.define([
 				importance: {
 					type: "sap.ui.core.Priority",
 					group: "Behavior",
-					defaultValue: "None"
+					defaultValue: "None",
+					deprecated: true
 				},
 				/**
 				 * Defines data property related to the column.
@@ -115,7 +116,8 @@ sap.ui.define([
 				 * @since 1.84
 				 */
 				dataProperty: {
-					type: "string"
+					type: "string",
+					deprecated: true
 				},
 				/**
 				 * Defines data property related to the column.
@@ -157,7 +159,8 @@ sap.ui.define([
 				 */
 				creationTemplate: {
 					type: "sap.ui.core.Control",
-					multiple: false
+					multiple: false,
+					deprecated: true
 				},
 				/**
 				 * Defines type-specific column settings based on the used {@link sap.ui.mdc.table.TableTypeBase}.

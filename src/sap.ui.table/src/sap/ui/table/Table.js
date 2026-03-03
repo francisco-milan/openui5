@@ -656,7 +656,8 @@ sap.ui.define([
 					 * reference to the selected column
 					 */
 					column: {type: "sap.ui.table.Column"}
-				}
+				},
+				deprecated: true
 			},
 
 			/**
@@ -783,7 +784,8 @@ sap.ui.define([
 					 * new value of the visible property.
 					 */
 					newVisible: {type: "boolean"}
-				}
+				},
+				deprecated: true
 			},
 
 			/**

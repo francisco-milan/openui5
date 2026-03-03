@@ -256,7 +256,8 @@ sap.ui.define([
 				height: {
 					type: "sap.ui.core.CSSSize",
 					group: "Dimension",
-					defaultValue: null
+					defaultValue: null,
+					deprecated: true
 				},
 				/**
 				 * Personalization options for the table.
@@ -641,7 +642,8 @@ sap.ui.define([
 				 */
 				creationRow: {
 					type: "sap.ui.mdc.table.CreationRow",
-					multiple: false
+					multiple: false,
+					deprecated: true
 				},
 
 				/**

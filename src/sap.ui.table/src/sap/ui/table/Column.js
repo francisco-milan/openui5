@@ -335,7 +335,7 @@ sap.ui.define([
 			 *
 			 * @deprecated As of version 1.117, use the <code>headerMenu</code> association instead.
 			 */
-			menu: {type: "sap.ui.unified.Menu", multiple: false},
+			menu: {type: "sap.ui.unified.Menu", multiple: false, deprecated: true},
 
 			/**
 			 * Control to be displayed as an action in the column header.
@@ -365,7 +365,8 @@ sap.ui.define([
 					 * Refence to the selected <code>menu</code> instance to be opened.
 					 */
 					menu: {type: "sap.ui.unified.Menu"}
-				}
+				},
+				deprecated: true
 			}
 		}
 	}});

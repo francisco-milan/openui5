@@ -3,6 +3,11 @@
     "date": "March 2026",
     "notes": [
       {
+        "id": "b3a69d8e854f8ddcef16f1cdb27d13cdfa604917",
+        "type": "FIX",
+        "text": " sap.m.VariantManagement: Rename shortcut description"
+      },
+      {
         "id": "bc50a68bb01ddaf0b4a7cfaecda91e52fae296d9",
         "type": "FIX",
         "text": " We've now fixed a jump issue in the header container by using an outline instead of a border"
@@ -51,6 +56,11 @@
         "id": "0b17045ddd21b3d73a4c20e31a1353210aef3bd2",
         "type": "FIX",
         "text": " sap.m.Breadcrumbs: Enable text wrapping in overflow popover"
+      },
+      {
+        "id": "d5490453e9d6eac605f5adbcbe106299ccac3877",
+        "type": "FIX",
+        "text": " xConfig: Use property-type specific comparison for removal"
       },
       {
         "id": "21d632ce9252204a06018b83ae843ace22a00be4",

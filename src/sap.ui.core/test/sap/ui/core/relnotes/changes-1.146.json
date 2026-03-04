@@ -3,6 +3,11 @@
     "date": "March 2026",
     "notes": [
       {
+        "id": "c099fd607aca17e0efa6490c5ba7b9f79eabfc53",
+        "type": "FEATURE",
+        "text": " Bound Filters support tree bindings"
+      },
+      {
         "id": "0d3526fa16bae41256e15a9965eae1856f449bef",
         "type": "FEATURE",
         "text": " Bound Filters support filter API"
@@ -11,6 +16,11 @@
         "id": "64edc2323157f6ee70e16e376856bddf367857e5",
         "type": "FIX",
         "text": " sap.ui.test.autoWaiter: test fixed to use specific waiter API"
+      },
+      {
+        "id": "8606049d163993f58ed6178571afda07e8d2cf4b",
+        "type": "FIX",
+        "text": " sap.base.strings.formatMessage: Accept nullish arguments"
       },
       {
         "id": "0e03e6368726c43215dd96c053316a2496e02d0d",

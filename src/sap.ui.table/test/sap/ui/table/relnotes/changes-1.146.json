@@ -1,0 +1,12 @@
+{
+  "1.146.0": {
+    "date": "March 2026",
+    "notes": [
+      {
+        "id": "50ee853dd2d866a715eda4daf636a0c5b0dd8b36",
+        "type": "FEATURE",
+        "text": " ui.Table: Implemented momentum scrolling"
+      }
+    ]
+  }
+}

@@ -4050,7 +4050,8 @@ sap.ui.define([
 	});
 
 	//*********************************************************************************************
-	QUnit.test("addElements", function (assert) {
+[0, 42].forEach((iStart) => {
+	QUnit.test("addElements: iStart = " + iStart, function (assert) {
 		var oAggregation = { // filled before by buildApply
 				aggregate : {},
 				group : {},
@@ -4059,8 +4060,8 @@ sap.ui.define([
 			},
 			oCache = _AggregationCache.create(this.oRequestor, "~", "", {}, oAggregation),
 			oPlaceholder42 = _AggregationHelper.createPlaceholder(NaN, 42, "~parent~"),
-			oPlaceholder45 = _AggregationHelper.createPlaceholder(NaN, 45, "~parent~"),
-			aElements = [{}, {}, oPlaceholder42,,, oPlaceholder45, {}, {}],
+			oPlaceholder44 = _AggregationHelper.createPlaceholder(NaN, 44, "~parent~"),
+			aElements = [{}, {}, oPlaceholder42,,, oPlaceholder44, {}, {}],
 			aReadElements = [
 				{"@$ui5._" : {predicate : "(1)"}},
 				{"@$ui5._" : {predicate : "(2)", transientPredicate : "$uid=id-1-23"}},
@@ -4076,15 +4077,15 @@ sap.ui.define([
 		const oAggregationHelperMock = this.mock(_AggregationHelper);
 		oAggregationHelperMock.expects("beforeOverwritePlaceholder")
 			.withExactArgs(sinon.match.same(oPlaceholder42), sinon.match.same(aReadElements[0]),
-				"~parent~", 42, "SomeNodeID");
+				"~parent~", iStart, "SomeNodeID");
 		oAggregationHelperMock.expects("beforeOverwritePlaceholder")
-			.withExactArgs(sinon.match.same(oPlaceholder45), sinon.match.same(aReadElements[3]),
-				"~parent~", 44, "SomeNodeID");
+			.withExactArgs(sinon.match.same(oPlaceholder44), sinon.match.same(aReadElements[3]),
+				"~parent~", iStart + 2, "SomeNodeID");
 		this.mock(_Helper).expects("updateNonExisting").never();
 		this.mock(oCache).expects("hasPendingChangesForPath").never();
 
 		// code under test
-		oCache.addElements(aReadElements, 2, "~parent~", 42);
+		oCache.addElements(aReadElements, 2, "~parent~", iStart);
 
 		assert.strictEqual(oCache.aElements[0], aElements[0]);
 		assert.strictEqual(oCache.aElements[1], aElements[1]);
@@ -4104,15 +4105,16 @@ sap.ui.define([
 		assert.deepEqual(oCache.aElements, [
 			{},
 			{},
-			{"@$ui5._" : {parent : "~parent~", predicate : "(1)", rank : 42}},
+			{"@$ui5._" : {parent : "~parent~", predicate : "(1)", rank : iStart}},
 			{"@$ui5._" // no rank!
 				: {parent : "~parent~", predicate : "(2)", transientPredicate : "$uid=id-1-23"}},
-			{"@$ui5._" : {parent : "~parent~", predicate : "(3)", rank : 43}},
-			{"@$ui5._" : {parent : "~parent~", predicate : "(4)", rank : 44}},
+			{"@$ui5._" : {parent : "~parent~", predicate : "(3)", rank : iStart + 1}},
+			{"@$ui5._" : {parent : "~parent~", predicate : "(4)", rank : iStart + 2}},
 			{},
 			{}
 		]);
 	});
+});
 
 	//*********************************************************************************************
 	QUnit.test("addElements: no rank for single created element", function (assert) {
@@ -4278,6 +4280,10 @@ sap.ui.define([
 			.withExactArgs(sinon.match.same(oElement), sinon.match.same(oElement)); // no-op
 		this.mock(oCache).expects("hasPendingChangesForPath").never();
 		this.mock(_Helper).expects("copySelected").never();
+		this.mock(_Helper).expects("setPrivateAnnotation")
+			.withExactArgs(sinon.match.same(oElement), "parent",
+				sinon.match.same(oGroupLevelCache));
+		// Note: no setPrivateAnnotation(..., "rank", NaN)!
 
 		// code under test
 		oCache.addElements([oElement], 1, oGroupLevelCache); // iStart does not matter here
@@ -5898,14 +5904,16 @@ sap.ui.define([
 		this.mock(oCollectionCache).expects("create")
 			.withExactArgs("~oGroupLock~", "~oPostPathPromise~", "~sPath~",
 				"~sTransientPredicate~", {bar : "~bar~", foo : "~foo~"}, bAtEndOfCreated,
-				"~fnErrorCallback~", sinon.match.func, sinon.match.func)
+				"~fnErrorCallback~", sinon.match.func, sinon.match.func, sinon.match.func)
 			.callsFake(function () {
 				fnNewSubmitCallback = arguments[7];
 				fnCancelCallback = arguments[8];
+				const fnAt = arguments[9];
 				if (!bCreateRoot) {
 					assert.strictEqual(_Helper.getPrivateAnnotation(oParentNode, "cache"),
 						bInFirstLevel ? undefined : oGroupLevelCache);
 				}
+				fnAt(bAtEndOfCreated ? 3 : "n/a");
 				_Helper.setPrivateAnnotation(oEntityData, "postBody", oPostBody);
 				return new SyncPromise(function (resolve) {
 					setTimeout(function () {
@@ -5920,9 +5928,11 @@ sap.ui.define([
 							.withExactArgs(sinon.match.same(oCache.mPostRequests),
 								"~sTransientPredicate~", sinon.match.same(oEntityData));
 						that.mock(oCache.oTreeState).expects("setOutOfPlace")
+							.exactly(bAtEndOfCreated ? 0 : 1)
 							.withExactArgs(sinon.match.same(oEntityData),
 								bCreateRoot ? undefined : sinon.match.same(oParentNode));
-						const iCallCount = bInFirstLevel && iExpandTo > 1 ? 1 : 0;
+						const iCallCount
+							= bInFirstLevel && iExpandTo > 1 && !bAtEndOfCreated ? 1 : 0;
 						const iRankCallCount = iCallCount && iRank ? 1 : 0;
 						const oRankExpectation = that.mock(oCache).expects("requestRank")
 							.exactly(iCallCount)
@@ -5936,6 +5946,7 @@ sap.ui.define([
 								return Promise.resolve(iRank);
 							});
 						oNodeExpectation = that.mock(oCache).expects("requestNodeProperty")
+							.exactly(bAtEndOfCreated ? 0 : 1)
 							.withExactArgs(sinon.match.same(oEntityData), "~oGroupLock~", true)
 							.returns(new Promise(function (resolve0) {
 								setTimeout(function () {
@@ -5977,10 +5988,10 @@ sap.ui.define([
 		oHelperMock.expects("makeRelativePath").exactly(bCreateRoot ? 0 : 1)
 			.withExactArgs("/Foo('42')", "/Foo").returns("~relativeUrl~");
 		oCacheMock.expects("addElements")
-			.withExactArgs(sinon.match.same(oEntityData), bCreateRoot ? 0 : 3,
+			.withExactArgs(sinon.match.same(oEntityData), bCreateRoot && !bAtEndOfCreated ? 0 : 3,
 				sinon.match.same(oCollectionCache), undefined)
 			.callsFake(function () {
-				assert.deepEqual(oCache.aElements, bCreateRoot
+				assert.deepEqual(oCache.aElements, bCreateRoot && !bAtEndOfCreated
 					? [null, "0", "1", "2", "3", "4"]
 					: ["0", "1", oParentNode, null, "3", "4"]);
 			});
@@ -6013,14 +6024,20 @@ sap.ui.define([
 				"('ABC')" : oEntityData
 			});
 			assert.strictEqual(oCache.aElements.$count, 6);
-			assert.ok(bNodePropertyCompleted, "await #requestNodeProperty");
+			assert.strictEqual(bNodePropertyCompleted, !bAtEndOfCreated,
+				"await #requestNodeProperty");
 			if (oCountPromise) {
 				assert.ok(oCache.oCountPromise.$restore.notCalled, "not yet restored");
 			} else {
 				assert.strictEqual(oCache.oCountPromise, undefined);
 			}
 
-			oCache.aElements[bCreateRoot ? 0 : 3] = oEntityData;
+			if (bAtEndOfCreated) { // shuffle around ;-)
+				oCache.aElements[3] = oParentNode;
+				oCache.aElements[2] = oEntityData;
+			} else {
+				oCache.aElements[bCreateRoot ? 0 : 3] = oEntityData;
+			}
 			oCache.aElements.$byPredicate["~sTransientPredicate~"] = "n/a";
 			oHelperMock.expects("removeByPath")
 				.withExactArgs(sinon.match.same(oCache.mPostRequests),
@@ -6133,8 +6150,8 @@ sap.ui.define([
 		let fnCancelCallback;
 		this.mock(oCache.oFirstLevel).expects("create")
 			.withExactArgs("~oGroupLock~", "~oPostPathPromise~", "~sPath~",
-				"~sTransientPredicate~", {bar : "~bar~", foo : "~foo~"}, false, "~fnErrorCallback~",
-				"~fnSubmitCallback~", sinon.match.func)
+				"~sTransientPredicate~", {bar : "~bar~", foo : "~foo~"}, false,
+				"~fnErrorCallback~", "~fnSubmitCallback~", sinon.match.func, sinon.match.func)
 			.callsFake(function () {
 				fnCancelCallback = arguments[8];
 				_Helper.setPrivateAnnotation(oEntityData, "postBody", oPostBody);
@@ -6610,22 +6627,6 @@ sap.ui.define([
 		});
 		this.mock(_Helper).expects("drillDown").withExactArgs("~oElement~", "path/to/NodeID")
 			.returns(""); // edge case :-)
-		this.mock(oCache).expects("requestProperties").never();
-		this.mock(_Helper).expects("inheritPathValue").never();
-
-		assert.strictEqual(
-			// code under test
-			await oCache.requestNodeProperty("~oElement~", "~oGroupLock~", "n/a"),
-			undefined, "without a defined result");
-	});
-
-	//*********************************************************************************************
-	QUnit.test("requestNodeProperty: not applicable", async function (assert) {
-		const oCache = _AggregationCache.create(this.oRequestor, "Foo", "", {}, {
-			hierarchyQualifier : "X",
-			$NodeProperty : undefined
-		});
-		this.mock(_Helper).expects("drillDown").never();
 		this.mock(oCache).expects("requestProperties").never();
 		this.mock(_Helper).expects("inheritPathValue").never();
 
@@ -8129,6 +8130,18 @@ sap.ui.define([
 		}, "unchanged");
 	});
 });
+
+	//*********************************************************************************************
+	QUnit.test("setInactive", function () {
+		const oCache = _AggregationCache.create(this.oRequestor, "Foo", "", {}, {
+			hierarchyQualifier : "X"
+		});
+		this.mock(oCache.oFirstLevel).expects("setInactive")
+			.withExactArgs("~sPath~", "~bInactive~", sinon.match.same(oCache.mChangeListeners));
+
+		// code under test
+		oCache.setInactive("~sPath~", "~bInactive~");
+	});
 
 	//*********************************************************************************************
 	QUnit.test("createCountPromise", function (assert) {

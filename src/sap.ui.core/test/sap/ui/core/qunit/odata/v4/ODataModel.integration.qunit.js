@@ -112,7 +112,7 @@ sap.ui.define([
 	 * @param {object} assert - The QUnit assert object
 	 * @param {sap.ui.model.odata.v4.ODataListBinding} oListBinding - A list binding
 	 */
-	function checkAggregationCache4Hierarchy(sTitle, assert, oListBinding) {
+	function checkAggregationCache(sTitle, assert, oListBinding) {
 		const aParentByLevel = [];
 		const bUnifiedCache = oListBinding.oCache.bUnifiedCache;
 
@@ -131,7 +131,7 @@ sap.ui.define([
 						"not created", oElement);
 				}
 			}
-			strictEqual(oCache.aElements.$count === oCache.iLimit + oCache.iActiveElements, true,
+			strictEqual(oCache.aElements.$count, oCache.iLimit + oCache.iActiveElements,
 				`${oCache.aElements.$count} === ${oCache.iLimit} + ${oCache.iActiveElements}`);
 			for (const sPredicate in oCache.aElements.$byPredicate) {
 				const oElement = oCache.aElements.$byPredicate[sPredicate];
@@ -167,14 +167,16 @@ sap.ui.define([
 						_Helper.getPrivateAnnotation(oElement, "context").isTransient(),
 						`"@$ui5.context.isTransient" @ level ${iLevel}`, oElement);
 				}
-				strictEqual(oListBinding.oCache.oTreeState.isOutOfPlace(
-						_Helper.getPrivateAnnotation(oElement, "predicate")),
-					oElement["@$ui5.context.isTransient"] === false, "OOP = created persisted",
-					oElement);
+				if (oListBinding.getAggregation().hierarchyQualifier) {
+					strictEqual(oListBinding.oCache.oTreeState.isOutOfPlace(
+							_Helper.getPrivateAnnotation(oElement, "predicate")),
+						oElement["@$ui5.context.isTransient"] === false, "OOP = created persisted",
+						oElement);
+				}
 
 				if (oElement["@$ui5.node.isExpanded"] === undefined) {
-					strictEqual(_Helper.getPrivateAnnotation(oElement, "descendants") === undefined,
-						true, "no descendants for a leaf", oElement);
+					strictEqual(_Helper.getPrivateAnnotation(oElement, "descendants"), undefined,
+						"no descendants for a leaf", oElement);
 				}
 
 				let iRank = _Helper.getPrivateAnnotation(oElement, "rank");
@@ -184,8 +186,10 @@ sap.ui.define([
 				}
 				const bPlaceholder = _Helper.hasPrivateAnnotation(oElement, "placeholder");
 				if (oParent) {
-					strictEqual(_Helper.getPrivateAnnotation(oElement, "parent"), oParent,
-						`"parent" @ level ${iLevel}`, oElement);
+					if (_Helper.hasPrivateAnnotation(oElement, "parent")) {
+						strictEqual(_Helper.getPrivateAnnotation(oElement, "parent"), oParent,
+							`"parent" @ level ${iLevel}`, oElement);
+					}
 					if (_Helper.hasPrivateAnnotation(oElement, "transientPredicate")) {
 						strictEqual(iRank, undefined,
 							`created persisted @ level ${iLevel}`, oElement);
@@ -243,7 +247,7 @@ sap.ui.define([
 				true, `unknown predicate ${sPredicate}`, oElement);
 		}
 
-		let iExpandTo = oListBinding.getAggregation().expandTo || 1;
+		let iExpandTo = oListBinding.getAggregation().expandTo ?? 1;
 		if (iExpandTo >= Number.MAX_SAFE_INTEGER || bUnifiedCache) {
 			iExpandTo = 99; // avoid "Invalid array length" :-)
 		}
@@ -279,6 +283,10 @@ sap.ui.define([
 					}
 				});
 			} // else: cannot count "descendants" this way
+		}
+
+		if (!oListBinding.getAggregation().hierarchyQualifier && !oListBinding.iCreatedContexts) {
+			checkAggregationCache4NonHierarchy(sTitle, assert, oListBinding);
 		}
 	}
 
@@ -477,7 +485,7 @@ sap.ui.define([
 					if (vExpectedPath !== aAllExistingContexts[i]) {
 						assert.ok(false, `${sTitle}: Context not same @${i}: ${vExpectedPath}`);
 					}
-					aExpectedPaths[i] = vExpectedPath.getPath();
+					aExpectedPaths[i] = getNormalizedPath(vExpectedPath);
 				}
 			});
 			assert.deepEqual(aAllExistingContexts.map(getNormalizedPath), aExpectedPaths);
@@ -503,13 +511,8 @@ sap.ui.define([
 
 		checkSelectionCount(assert, oListBinding);
 
-		const oAggregation = oListBinding.getAggregation();
-		if (oAggregation) {
-			if (oAggregation.hierarchyQualifier) {
-				checkAggregationCache4Hierarchy(sTitle, assert, oListBinding);
-			} else {
-				checkAggregationCache4NonHierarchy(sTitle, assert, oListBinding);
-			}
+		if (oListBinding.getAggregation()) {
+			checkAggregationCache(sTitle, assert, oListBinding);
 		}
 	}
 
@@ -689,7 +692,12 @@ sap.ui.define([
 			if (oElement) {
 				sDetails += ": " + JSON.stringify(_Helper.publicClone(oElement));
 			}
-			assert.strictEqual(vActual, vExpected, sTitle + ": " + sDetails);
+			if (vActual && Object.keys(vActual).length > 12
+				|| vExpected && Object.keys(vExpected).length > 12) {
+				assert.ok(false, sTitle + ": " + sDetails);
+			} else {
+				assert.strictEqual(vActual, vExpected, sTitle + ": " + sDetails);
+			}
 		} // else: do not spam the output ;-)
 	}
 
@@ -1134,8 +1142,8 @@ sap.ui.define([
 
 			await this.waitForChanges(assert, sTitle);
 
-			if (oListBinding.getAggregation()?.hierarchyQualifier) {
-				checkAggregationCache4Hierarchy(sTitle, assert, oListBinding);
+			if (oListBinding.getAggregation()) {
+				checkAggregationCache(sTitle, assert, oListBinding);
 			}
 		},
 
@@ -21441,8 +21449,8 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 		}).then(function () {
 			assert.throws(function () {
 				oBinding.setContext(that.oModel.createBindingContext("/SalesOrderList('23')"));
-			}, "Must not call method when the binding's root binding is suspended"
-				+ ": sap.ui.model.odata.v4.ODataContextBinding: /SalesOrderList('42')|SO_2_BP");
+			}, new Error("Must not call method when the binding's root binding is suspended"
+				+ ": sap.ui.model.odata.v4.ODataContextBinding: /SalesOrderList('42')|SO_2_BP"));
 		});
 	});
 
@@ -28269,7 +28277,11 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 	//
 	// Check that create at start is supported (JIRA: CPOUI5ODATAV4-3350)
 	// Check that create at end of start is supported (JIRA: CPOUI5ODATAV4-3351)
-	QUnit.test("Data Aggregation: filter w/o aggregation on leaves", async function (assert) {
+	// Check that inactive elements are supported (JIRA: CPOUI5ODATAV4-3409)
+[undefined, false, true].forEach((bInactive) => { // Note: false means "gets activated"
+	const sTitle = "Data Aggregation: filter w/o aggregation on leaves, bInactive=" + bInactive;
+
+	QUnit.test(sTitle, async function (assert) {
 		const oModel = this.createAggregationModel({autoExpandSelect : true});
 		const sView = `
 <Text id="count" text="{headerContext>$count}"/>
@@ -28294,14 +28306,16 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 				},
 				$orderby : 'Region asc,SalesAmount desc'
 			}
-		}" threshold="0" visibleRowCount="4">
-	<Text id="isExpanded" text="{= %{@$ui5.node.isExpanded} }"/>
-	<Text id="isTotal" text="{= %{@$ui5.node.isTotal} }"/>
-	<Text id="level" text="{= %{@$ui5.node.level} }"/>
-	<Text id="id" text="{Id}"/>
+		}" threshold="0" visibleRowCount="5">
+	<Text id="isInactive" text="{= %{@$ui5.context.isInactive} }"/>\
+	<Text text="{= %{@$ui5.context.isTransient} }"/>
+	<Text text="{= %{@$ui5.node.isExpanded} }"/>
+	<Text text="{= %{@$ui5.node.isTotal} }"/>
+	<Text text="{= %{@$ui5.node.level} }"/>
+	<Text text="{Id}"/>
 	<Text id="region" text="{Region}"/>
-	<Text id="salesAmount" text="{SalesAmount}"/>
-	<Text id="currency" text="{Currency}"/>
+	<Text text="{SalesAmount}"/>
+	<Text text="{Currency}"/>
 </t:Table>`;
 
 		this.expectChange("count")
@@ -28310,11 +28324,11 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 					+ ",groupby((Currency,Id,Region),aggregate(SalesAmount))"
 				+ "/orderby(Region asc,SalesAmount desc)"
 				// Note: $count is requested automatically
-				+ "/concat(aggregate($count as UI5__count),top(4)))", {
+				+ "/concat(aggregate($count as UI5__count),top(5)))", {
 				value : [
 					{
 						Currency : "EUR",
-						SalesAmount : "999",
+						SalesAmount : "1",
 						"SalesAmount@odata.type" : "#Decimal"
 					},
 					{UI5__count : "1", "UI5__count@odata.type" : "#Decimal"},
@@ -28326,19 +28340,30 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 					}
 				]
 			})
-			.expectChange("isExpanded", [undefined, true])
-			.expectChange("isTotal", [false, true])
-			.expectChange("level", [1, 0])
-			.expectChange("id", ["42", null])
-			.expectChange("region", ["Old", null])
-			.expectChange("salesAmount", ["1.95583", "999"])
-			.expectChange("currency", ["DEM", "EUR"]);
+			.expectChange("isInactive", [undefined, undefined])
+			.expectChange("region", ["Old", null]);
 
 		await this.createView(assert, sView, oModel);
 
-		const oListBinding = this.oView.byId("table").getBinding("rows");
+		const oTable = this.oView.byId("table");
+		checkTable("initial state", assert, oTable, [
+			"/BusinessPartners(42)",
+			"/BusinessPartners()"
+		], [
+			[undefined, undefined, undefined, false, 1, "42", "Old", "1.95583", "DEM"],
+			[undefined, undefined, true, true, 0, "", "", "1", "EUR"]
+		]);
+		const oListBinding = oTable.getBinding("rows");
+		assert.strictEqual(oModel.hasPendingChanges(), false, "JIRA: CPOUI5ODATAV4-3409");
+		assert.strictEqual(oListBinding.hasPendingChanges(), false, "JIRA: CPOUI5ODATAV4-3409");
 		assert.strictEqual(oListBinding.getHeaderContext().isAggregated(), false,
 			"JIRA: CPOUI5ODATAV4-2760");
+		const aContexts = oListBinding.getCurrentContexts();
+		// code under test
+		assert.strictEqual(aContexts[0].isAggregated(), false, "JIRA: CPOUI5ODATAV4-2760");
+		// code under test
+		assert.strictEqual(aContexts[1].isAggregated(), true, "JIRA: CPOUI5ODATAV4-2760");
+
 		assert.strictEqual(oListBinding.getCount(), 1, "old count");
 		assert.strictEqual(oListBinding.getLength(), 2, "old length");
 
@@ -28350,49 +28375,44 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 
 		await this.waitForChanges(assert, "headerContext>$count");
 
-		const aContexts = oListBinding.getCurrentContexts();
-		assert.strictEqual(aContexts[0].getPath(), "/BusinessPartners(42)");
-		assert.strictEqual(aContexts[0].isExpanded(), undefined, "leaf");
-		// code under test
-		assert.strictEqual(aContexts[0].isAggregated(), false, "JIRA: CPOUI5ODATAV4-2760");
+		const bActivate = bInactive === false;
+		if (bActivate) {
+			bInactive = true;
+		}
 
-		assert.strictEqual(aContexts[1].getPath(), "/BusinessPartners()");
-		assert.strictEqual(aContexts[1].isExpanded(), true);
-		// code under test
-		assert.strictEqual(aContexts[1].isAggregated(), true, "JIRA: CPOUI5ODATAV4-2760");
-
-		this.expectChange("count", "2")
-			.expectChange("isExpanded", [/*undefined*/, undefined, true])
-			.expectChange("isTotal", [/*false*/, false, true])
-			.expectChange("level", [/*1*/, 1, 0])
-			.expectChange("id", [null, "42", null])
-			.expectChange("region", ["New", "Old", null])
-			.expectChange("salesAmount", [null, "1.95583", "999"])
-			.expectChange("currency", ["", "DEM", "EUR"])
-			.expectRequest("POST BusinessPartners", {
-				payload : {Region : "New"}
-			}, {
-				Currency : "EUR",
-				Id : 1, // Edm.Int16
-				Region : "New",
-				SalesAmount : "123"
-			})
-			.expectChange("id", ["1"])
-			.expectChange("salesAmount", ["123"])
-			.expectChange("currency", ["EUR"]);
+		this.expectChange("isInactive", [,, undefined])
+			.expectChange("region", [bActivate ? "TBD" : "New", "Old", null]);
+		const expect = () => {
+			this.expectChange("count", "2")
+				.expectRequest("POST BusinessPartners", {
+					payload : {Region : "New"}
+				}, {
+					Currency : "EUR",
+					Id : 1, // Edm.Int16
+					Region : "New",
+					SalesAmount : "123"
+				});
+		};
+		if (bInactive) {
+			this.expectChange("isInactive", [true]);
+		} else {
+			expect();
+		}
 
 		// code under test (JIRA: CPOUI5ODATAV4-3350)
-		const oCreatedContext = oListBinding.create({Region : "New"}, /*bSkipRefresh*/true,
-			/*bAtEnd*/false, /*bInactive*/false);
+		const oCreatedContext = oListBinding.create({Region : bActivate ? "TBD" : "New"},
+			/*bSkipRefresh*/true, /*bAtEnd*/false, bInactive);
 
 		assert.deepEqual(oCreatedContext.getObject(), {
+			...(bInactive && {"@$ui5.context.isInactive" : true}),
 			"@$ui5.context.isTransient" : true,
 			"@$ui5.node.isTotal" : false,
 			"@$ui5.node.level" : 1,
-			Region : "New"
+			Region : bActivate ? "TBD" : "New"
 		}, "transient");
+		assert.strictEqual(oCreatedContext.isInactive(), bInactive ? true : undefined);
 		assert.strictEqual(oCreatedContext.isTransient(), true);
-		assert.strictEqual(oListBinding.getCount(), 2, "new count");
+		assert.strictEqual(oListBinding.getCount(), bInactive ? 1 : 2, "new count");
 		assert.strictEqual(oListBinding.getLength(), 3, "new length");
 		assert.deepEqual(oListBinding.getCurrentContexts().map(getNormalizedPath), [
 			"/BusinessPartners($uid=...)",
@@ -28400,39 +28420,108 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 			"/BusinessPartners()"
 		], "transient");
 		assert.strictEqual(oListBinding.getCurrentContexts()[0], oCreatedContext);
+		assert.strictEqual(oModel.hasPendingChanges(), !bInactive);
+		assert.strictEqual(oListBinding.hasPendingChanges(), !bInactive);
 
 		await Promise.all([
-			oCreatedContext.created(),
-			this.waitForChanges(assert, "created at start")
+			bInactive || oCreatedContext.created(),
+			this.waitForChanges(assert, "created" + (bInactive ? " inactive" : "") + " at start")
 		]);
 
-		assert.deepEqual(oCreatedContext.getObject(), {
-			"@$ui5.context.isTransient" : false,
-			"@$ui5.node.isTotal" : false,
-			"@$ui5.node.level" : 1,
-			Currency : "EUR",
-			Id : 1,
-			Region : "New",
-			SalesAmount : "123"
-		}, "persisted");
-		assert.strictEqual(oCreatedContext.isTransient(), false);
-		assert.strictEqual(oListBinding.getCount(), 2, "unchanged");
-		assert.strictEqual(oListBinding.getLength(), 3, "unchanged");
-		assert.deepEqual(oListBinding.getCurrentContexts().map(getPath), [
-			"/BusinessPartners(1)",
+		checkTable("after created ... at start", assert, oTable, [
+			oCreatedContext,
 			"/BusinessPartners(42)",
 			"/BusinessPartners()"
-		], "persisted");
-		assert.strictEqual(oListBinding.getCurrentContexts()[0], oCreatedContext);
+		], [
+			bInactive
+				? [bInactive, true, undefined, false, 1, "", bActivate ? "TBD" : "New", "", ""]
+				: [bInactive, false, undefined, false, 1, "1", "New", "123", "EUR"],
+			[undefined, undefined, undefined, false, 1, "42", "Old", "1.95583", "DEM"],
+			[undefined, undefined, true, true, 0, "", "", "1", "EUR"]
+		]);
 
-		this.expectChange("count", "3")
-			.expectChange("isExpanded", [, /*undefined*/, undefined, true])
-			.expectChange("isTotal", [, /*false*/, false, true])
-			.expectChange("level", [, /*1*/, 1, 0])
-			.expectChange("id", [, null, "42", null])
+		assert.throws(function () {
+			// code under test (JIRA: CPOUI5ODATAV4-3409)
+			oListBinding.create({"@$ui5.node.parent" : oCreatedContext}, /*bSkipRefresh*/true);
+		}, new Error('"@$ui5.node.parent" not supported: ' + oListBinding));
+
+		if (bActivate) {
+			this.expectChange("region", [""])
+				.expectChange("isInactive", [1]);
+
+			oListBinding.attachEventOnce("createActivate", (oEvent) => {
+				oEvent.preventDefault();
+			});
+
+			// code under test (JIRA: CPOUI5ODATAV4-3409)
+			oCreatedContext.setProperty("Region", ""); // simulate missing required property ;-)
+
+			await this.waitForChanges(assert, "activation prevented");
+
+			assert.strictEqual(oCreatedContext.isInactive(), 1);
+			assert.strictEqual(oModel.hasPendingChanges(), false,
+				"inactive contexts are ignored, *even when* their activation has been prevented");
+			assert.strictEqual(oListBinding.hasPendingChanges(), true,
+				"inactive contexts are ignored, *unless* their activation has been prevented");
+			assert.strictEqual(oCreatedContext.hasPendingChanges(), true,
+				"inactive contexts are ignored, *unless* their activation has been prevented");
+
+			this.expectChange("region", ["TBD"])
+				.expectChange("isInactive", [true]);
+
+			// code under test (JIRA: CPOUI5ODATAV4-3409)
+			oCreatedContext.resetChanges();
+
+			await this.waitForChanges(assert, "reset changes");
+
+			assert.strictEqual(oCreatedContext.isInactive(), true);
+			assert.strictEqual(oModel.hasPendingChanges(), false);
+			assert.strictEqual(oListBinding.hasPendingChanges(), false);
+			assert.strictEqual(oCreatedContext.hasPendingChanges(), false);
+
+			this.expectChange("region", ["New"])
+				.expectChange("isInactive", [false]);
+			expect();
+
+			// code under test (JIRA: CPOUI5ODATAV4-3409)
+			oCreatedContext.setProperty("Region", "New");
+
+			assert.strictEqual(oCreatedContext.isInactive(), false);
+			assert.strictEqual(oModel.hasPendingChanges(), true);
+			assert.strictEqual(oListBinding.hasPendingChanges(), true);
+			assert.strictEqual(oCreatedContext.hasPendingChanges(), true);
+
+			await Promise.all([
+				oCreatedContext.created(),
+				this.waitForChanges(assert, "activated")
+			]);
+
+			bInactive = false; // eslint-disable-line require-atomic-updates
+			assert.strictEqual(oModel.hasPendingChanges(), false);
+			assert.strictEqual(oListBinding.hasPendingChanges(), false);
+			assert.strictEqual(oCreatedContext.hasPendingChanges(), false);
+
+			checkTable("after activation", assert, oTable, [
+				oCreatedContext,
+				"/BusinessPartners(42)",
+				"/BusinessPartners()"
+			], [
+				[bInactive, false, undefined, false, 1, "1", "New", "123", "EUR"],
+				[undefined, undefined, undefined, false, 1, "42", "Old", "1.95583", "DEM"],
+				[undefined, undefined, true, true, 0, "", "", "1", "EUR"]
+			]);
+		}
+
+		if (!bInactive) {
+			assert.strictEqual(oCreatedContext.isInactive(), bInactive);
+			assert.strictEqual(oCreatedContext.isTransient(), false);
+			assert.strictEqual(oListBinding.getCount(), 2, "unchanged");
+			assert.strictEqual(oListBinding.getLength(), 3, "unchanged (JIRA: CPOUI5ODATAV4-3409)");
+		}
+
+		this.expectChange("count", bInactive ? "2" : "3")
+			.expectChange("isInactive", [,,, undefined])
 			.expectChange("region", [, "End Of Start", "Old", null])
-			.expectChange("salesAmount", [, null, "1.95583", "999"])
-			.expectChange("currency", [, "", "DEM", "EUR"])
 			.expectRequest("POST BusinessPartners", {
 				payload : {Region : "End Of Start"}
 			}, {
@@ -28440,10 +28529,7 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 				Id : 2, // Edm.Int16
 				Region : "End Of Start",
 				SalesAmount : "234"
-			})
-			.expectChange("id", [, "2"])
-			.expectChange("salesAmount", [, "234"])
-			.expectChange("currency", [, "EUR"]);
+			});
 
 		// code under test (JIRA: CPOUI5ODATAV4-3351)
 		const oEndOfStartContext = oListBinding.create({Region : "End Of Start"},
@@ -28456,10 +28542,10 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 			Region : "End Of Start"
 		}, "transient");
 		assert.strictEqual(oEndOfStartContext.isTransient(), true);
-		assert.strictEqual(oListBinding.getCount(), 3, "new count");
-		assert.strictEqual(oListBinding.getLength(), 4, "new length");
+		assert.strictEqual(oListBinding.getCount(), bInactive ? 2 : 3, "new count");
+		assert.strictEqual(oListBinding.getLength(), 4, "new length (JIRA: CPOUI5ODATAV4-3409)");
 		assert.deepEqual(oListBinding.getCurrentContexts().map(getNormalizedPath), [
-			"/BusinessPartners(1)",
+			bInactive ? "/BusinessPartners($uid=...)" : "/BusinessPartners(1)",
 			"/BusinessPartners($uid=...)",
 			"/BusinessPartners(42)",
 			"/BusinessPartners()"
@@ -28472,27 +28558,133 @@ constraints:{'maxLength':5},formatOptions:{'parseKeepsEmptyString':true}\
 			this.waitForChanges(assert, "created at end of start")
 		]);
 
-		assert.deepEqual(oEndOfStartContext.getObject(), {
-			"@$ui5.context.isTransient" : false,
-			"@$ui5.node.isTotal" : false,
-			"@$ui5.node.level" : 1,
-			Currency : "EUR",
-			Id : 2,
-			Region : "End Of Start",
-			SalesAmount : "234"
-		}, "persisted");
-		assert.strictEqual(oEndOfStartContext.isTransient(), false);
-		assert.strictEqual(oListBinding.getCount(), 3, "unchanged");
-		assert.strictEqual(oListBinding.getLength(), 4, "unchanged");
-		assert.deepEqual(oListBinding.getCurrentContexts().map(getPath), [
-			"/BusinessPartners(1)",
-			"/BusinessPartners(2)",
+		checkTable("after created at end of start", assert, oTable, [
+			oCreatedContext,
+			oEndOfStartContext,
 			"/BusinessPartners(42)",
 			"/BusinessPartners()"
-		], "persisted");
-		assert.strictEqual(oListBinding.getCurrentContexts()[0], oCreatedContext);
-		assert.strictEqual(oListBinding.getCurrentContexts()[1], oEndOfStartContext);
+		], [
+			bInactive
+				? [bInactive, true, undefined, false, 1, "", "New", "", ""]
+				: [bInactive, false, undefined, false, 1, "1", "New", "123", "EUR"],
+			[undefined, false, undefined, false, 1, "2", "End Of Start", "234", "EUR"],
+			[undefined, undefined, undefined, false, 1, "42", "Old", "1.95583", "DEM"],
+			[undefined, undefined, true, true, 0, "", "", "1", "EUR"]
+		]);
+
+		assert.strictEqual(oEndOfStartContext.isTransient(), false);
+		assert.strictEqual(oListBinding.getCount(), bInactive ? 2 : 3, "unchanged");
+		assert.strictEqual(oListBinding.getLength(), 4, "unchanged (JIRA: CPOUI5ODATAV4-3409)");
+
+		this.expectChange("isInactive", [,,,, undefined])
+			.expectChange("region", ["Start Of Start", "New", "End Of Start", "Old", null]);
+		if (bInactive) {
+			this.expectChange("isInactive", [, true]);
+		} else {
+			this.expectChange("isInactive", [true]);
+			if (bActivate) {
+				this.expectChange("isInactive", [, false]);
+			}
+		}
+
+		const oStartOfStartContext = oListBinding.create({Region : "Start Of Start"},
+			/*bSkipRefresh*/true, /*bAtEnd*/false, /*bInactive*/true);
+
+		await this.waitForChanges(assert, "created inactive at start of start");
+
+		checkTable("after created inactive at start of start", assert, oTable, [
+			oStartOfStartContext,
+			oCreatedContext,
+			oEndOfStartContext,
+			"/BusinessPartners(42)",
+			"/BusinessPartners()"
+		], [
+			[true, true, undefined, false, 1, "", "Start Of Start", "", ""],
+			bInactive
+				? [bInactive, true, undefined, false, 1, "", "New", "", ""]
+				: [bInactive, false, undefined, false, 1, "1", "New", "123", "EUR"],
+			[undefined, false, undefined, false, 1, "2", "End Of Start", "234", "EUR"],
+			[undefined, undefined, undefined, false, 1, "42", "Old", "1.95583", "DEM"],
+			[undefined, undefined, true, true, 0, "", "", "1", "EUR"]
+		]);
+
+		{
+			const oAggregation = oListBinding.getAggregation();
+			assert.throws(function () {
+				// code under test (JIRA: CPOUI5ODATAV4-3409)
+				oListBinding.setAggregation({
+					...oAggregation,
+					grandTotalAtBottomOnly : false
+				});
+			}, new Error("Cannot set $$aggregation due to pending changes"));
+
+			oAggregation.aggregate.SalesAmount.grandTotal = false;
+			const oUnaggregatedBinding = oModel.bindList("/BusinessPartners", null, [], [],
+				{$$aggregation : oAggregation});
+			assert.throws(function () {
+				// code under test (JIRA: CPOUI5ODATAV4-3409)
+				oUnaggregatedBinding.create({}, /*bSkipRefresh*/true);
+			}, new Error("No use for data aggregation: " + oUnaggregatedBinding));
+
+			// this ODLB is not needed anymore, destroy now to remove its read group lock early
+			oUnaggregatedBinding.destroy();
+		}
+
+		if (!bInactive) {
+			return; //--------------------
+		}
+
+		assert.strictEqual(oCreatedContext.isInactive(), true, "still inactive");
+
+		this.expectChange("isInactive", [, undefined])
+			.expectChange("region", [, "End Of Start", "Old", null]);
+
+		await Promise.all([
+			// code under test (JIRA: CPOUI5ODATAV4-3409) - requires "model order" inside _AC
+			oCreatedContext.delete(),
+			oCreatedContext.created().then(mustFail(assert), function (oError) {
+				assert.strictEqual(oError.message,
+					"Request canceled: POST BusinessPartners; group: $inactive.$auto");
+				assert.ok(oError.canceled);
+			}),
+			this.waitForChanges(assert, "delete inactive")
+		]);
+
+		checkTable("after delete inactive", assert, oTable, [
+			oStartOfStartContext,
+			oEndOfStartContext,
+			"/BusinessPartners(42)",
+			"/BusinessPartners()"
+		], [
+			[true, true, undefined, false, 1, "", "Start Of Start", "", ""],
+			[undefined, false, undefined, false, 1, "2", "End Of Start", "234", "EUR"],
+			[undefined, undefined, undefined, false, 1, "42", "Old", "1.95583", "DEM"],
+			[undefined, undefined, true, true, 0, "", "", "1", "EUR"]
+		]);
+
+		this.expectChange("isInactive", [,, true])
+			.expectChange("region", [,, "Again At End Of Start", "Old"/*, null*/]);
+
+		const oAgainEndOfStartContext = oListBinding.create({Region : "Again At End Of Start"},
+			/*bSkipRefresh*/true, /*bAtEnd*/true, /*bInactive*/true);
+
+		await this.waitForChanges(assert, "created again at end of start");
+
+		checkTable("after created again at end of start", assert, oTable, [
+			oStartOfStartContext,
+			oEndOfStartContext,
+			oAgainEndOfStartContext,
+			"/BusinessPartners(42)",
+			"/BusinessPartners()"
+		], [
+			[true, true, undefined, false, 1, "", "Start Of Start", "", ""],
+			[undefined, false, undefined, false, 1, "2", "End Of Start", "234", "EUR"],
+			[true, true, undefined, false, 1, "", "Again At End Of Start", "", ""],
+			[undefined, undefined, undefined, false, 1, "42", "Old", "1.95583", "DEM"],
+			[undefined, undefined, true, true, 0, "", "", "1", "EUR"]
+		]);
 	});
+});
 
 	//*********************************************************************************************
 	// Scenario: Filtering on a list binding with data aggregation splits the filters in two parts:

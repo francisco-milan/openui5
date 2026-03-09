@@ -715,21 +715,22 @@ sap.ui.define([
 					}
 				}
 			});
-			assert.equal(
+			assert.strictEqual(
 				FlexObjectManager.hasDirtyFlexObjects({ reference: sComponentId }),
 				true,
 				"hasDirtyChanges is true after add variant"
 			);
 			CompVariantManager.removeVariant({
 				reference: sComponentId,
+				componentId: sComponentId,
 				persistencyKey: sPersistencyKey,
 				id: oVariant.getId(),
 				layer: Layer.CUSTOMER
 			});
-			assert.equal(
+			assert.strictEqual(
 				FlexObjectManager.hasDirtyFlexObjects({ reference: sComponentId }),
-				true,
-				"hasDirtyChanges is still true after remove variant as they are part of the flexstate"
+				false,
+				"hasDirtyChanges is now false"
 			);
 			var oWriteStub = sandbox.stub(Storage, "write").resolves();
 			var oUpdateStub = sandbox.stub(Storage, "update").resolves();
@@ -741,9 +742,9 @@ sap.ui.define([
 				persistencyKey: sPersistencyKey
 			});
 
-			assert.equal(oWriteStub.callCount, 0, "no write was called");
-			assert.equal(oUpdateStub.callCount, 0, "no update was called");
-			assert.equal(oRemoveStub.callCount, 0, "and no delete was called");
+			assert.strictEqual(oWriteStub.callCount, 0, "no write was called");
+			assert.strictEqual(oUpdateStub.callCount, 0, "no update was called");
+			assert.strictEqual(oRemoveStub.callCount, 0, "and no delete was called");
 		});
 
 		QUnit.test("Given persist is called for a variant that was created, modified and removed before persisting", async function(assert) {
@@ -2026,6 +2027,7 @@ sap.ui.define([
 
 			CompVariantManager.removeVariant({
 				reference: sComponentId,
+				componentId: sComponentId,
 				persistencyKey: this.sPersistencyKey,
 				id: oVariant.getVariantId(),
 				layer: Layer.CUSTOMER

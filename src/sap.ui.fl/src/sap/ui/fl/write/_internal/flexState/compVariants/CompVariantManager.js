@@ -18,6 +18,7 @@ sap.ui.define([
 	"sap/ui/fl/apply/_internal/flexState/FlexState",
 	"sap/ui/fl/initial/_internal/Settings",
 	"sap/ui/fl/initial/api/Version",
+	"sap/ui/fl/write/_internal/flexState/FlexObjectManager",
 	"sap/ui/fl/write/_internal/Storage",
 	"sap/ui/fl/write/_internal/Versions"
 ], function(
@@ -36,6 +37,7 @@ sap.ui.define([
 	FlexState,
 	Settings,
 	Version,
+	FlexObjectManager,
 	Storage,
 	Versions
 ) {
@@ -651,6 +653,7 @@ sap.ui.define([
 	 * @param {string} mPropertyBag.reference - Flex reference of the application
 	 * @param {string} mPropertyBag.persistencyKey - Key of the variant management
 	 * @param {string} mPropertyBag.id - ID of the variant
+	 * @param {string} mPropertyBag.componentId - ID of the application instance
 	 * @param {object} [mPropertyBag.revert=false] - Flag if the removal is a revert operation
 	 * @param {sap.ui.fl.Layer} mPropertyBag.layer - Layer in which the variant removal takes place;
 	 * this either removes the variant from the layer or writes a change to that layer.
@@ -669,9 +672,11 @@ sap.ui.define([
 			});
 			oVariant.addRevertData(oRevertData);
 		}
-
-		oVariant.markForDeletion();
-		FlexState.getFlexObjectsDataSelector().checkUpdate({ reference: mPropertyBag.reference });
+		FlexObjectManager.deleteFlexObjects({
+			reference: mPropertyBag.reference,
+			componentId: mPropertyBag.componentId,
+			flexObjects: [oVariant]
+		});
 		return oVariant;
 	};
 

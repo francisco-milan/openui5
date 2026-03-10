@@ -24,9 +24,11 @@ sap.ui.define([
 	var sandbox = sinon.createSandbox();
 
 	function setCodeEditorValue (oCodeEditor, sInput) {
+		oCodeEditor.focus();
 		oCodeEditor.setValue(sInput);
 		Core.applyChanges();
 		oCodeEditor.getAceEditor().getSession().setUseWorker(true);
+		oCodeEditor.focus();
 	}
 
 	QUnit.module("Code Editor: Given an editor config", {
@@ -216,11 +218,13 @@ sap.ui.define([
 					var oCodeEditor = oDialog.getContent()[0];
 					this.oCodeEditor.attachEventOnce("changeEnabledOfBeginButton", function (oEvent) {
 						EditorQunitUtils.wait().then(function () {
+							oCodeEditor.focus();
 							assert.strictEqual(oDialog.getBeginButton().getEnabled(), false, "Then the changes cannot be saved");
 							fnDone();
 						});
 					});
 					setCodeEditorValue(oCodeEditor, "{\"msg\": Hello World}");
+					oCodeEditor.focus();
 				}.bind(this));
 			}.bind(this));
 

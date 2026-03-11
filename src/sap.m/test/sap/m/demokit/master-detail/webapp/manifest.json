@@ -1,5 +1,5 @@
 {
-	"_version": "1.21.0",
+	"_version": "2.0.0",
 
 	"sap.app": {
 		"id": "sap.ui.demo.masterdetail",
@@ -51,12 +51,11 @@
 		"rootView": {
 			"viewName": "sap.ui.demo.masterdetail.view.App",
 			"type": "XML",
-			"async": true,
 			"id": "app"
 		},
 
 		"dependencies": {
-			"minUI5Version": "1.98.0",
+			"minUI5Version": "1.136.0",
 			"libs": {
 				"sap.f": {},
 				"sap.m": {},
@@ -96,8 +95,7 @@
 				"controlAggregation": "beginColumnPages",
 				"bypassed": {
 					"target": "notFound"
-				},
-				"async": true
+				}
 			},
 
 			"routes": [

@@ -148,13 +148,6 @@ sap.ui.define(function () {
 					}
 				},
 				$app : "test-resources/sap/ui/core/demokit/tutorial/odatav4/11/webapp/index.html"
-			},
-			"MetadataConverter.performance" : {
-				skip : true, // test should not be executed in voters / nightly, only manually
-				module : [
-					"test-resources/sap/ui/core/qunit/internal/performance"
-					+ "/MetadataConverter.performance.qunit"
-				]
 			}
 		}
 	};

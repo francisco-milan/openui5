@@ -19,7 +19,7 @@
 				cloudFilePickerEnabled="true"
 				beforeUploadStarts = ".beforeUpload"
 				cloudFilePickerServiceUrl="/sap/opu/odata4/sap/ui_cmis_myfiles_04/srvd/sap/cmis_myfiles/0001/?sap-client=325"
-				afterItemRemoved="onAfterItemRemoved">
+				afterItemRemoved=".onAfterItemRemoved">
 			<upload:toolbar>
 				<OverflowToolbar>
 					<ToolbarSpacer/>

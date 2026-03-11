@@ -21,7 +21,7 @@ sap.ui.define([
 	Filter, Sorter, ToolbarSpacer, ToolBar, Label, Icon) {
 	"use strict";
 
-	return Controller.extend("sap.m.sample.UploadSet.Page", {
+	return Controller.extend("sap.m.sample.UploadSetGroupingSortingFiltering.Page", {
 
 		onInit: function () {
 			var sPath = sap.ui.require.toUrl("sap/m/sample/UploadSetGroupingSortingFiltering/items.json"),

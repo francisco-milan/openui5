@@ -14,7 +14,7 @@
 					<form:FormContainer>
 						<form:FormElement label="File types">
 							<MultiComboBox
-								selectionChange="onFileTypeChange"
+								selectionChange=".onFileTypeChange"
 								placeholder="Choose the valid file types"
 								items="{fileTypes>/items}"
 								selectedKeys="{fileTypes>/selected}">
@@ -45,7 +45,7 @@
 								items="{settings>/listModeItems}"
 								selectedKey="{settings>/mode}"
 								width="150px"
-								change="onModeChange">
+								change=".onModeChange">
 								<core:Item key="{settings>key}" text="{settings>text}" />
 							</Select>
 						</form:FormElement>
@@ -78,7 +78,7 @@
 			</form:Form>
 		</content>
 		<endButton>
-			<Button text="Close" press="onDialogCloseButton" />
+			<Button text="Close" press=".onDialogCloseButton" />
 		</endButton>
 	</Dialog>
 </core:FragmentDefinition>

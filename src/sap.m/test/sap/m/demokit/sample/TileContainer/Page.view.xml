@@ -8,7 +8,7 @@
 		enableScrolling="false" >
 		<TileContainer
 			id="container"
-			tileDelete="handleTileDelete"
+			tileDelete=".handleTileDelete"
 			tiles="{/TileCollection}">
 			<StandardTile
 				icon="{icon}"
@@ -22,8 +22,8 @@
 		<footer>
 			<Toolbar>
 				<ToolbarSpacer/>
-					<Button text="Edit" press="handleEditPress" />
-					<Button text="Busy state" press="handleBusyPress" />
+					<Button text="Edit" press=".handleEditPress" />
+					<Button text="Busy state" press=".handleBusyPress" />
 				<ToolbarSpacer/>
 			</Toolbar>
 		</footer>

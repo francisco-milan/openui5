@@ -27,9 +27,9 @@
 				groupHeaderFactory: '.getGroupHeader'
 				}"
 				mode="None"
-				mediaTypeMismatch="onMediaTypeMismatch"
-				fileTypeMismatch="onFileTypeMismatch"
-				afterItemRemoved="onAfterItemRemoved" >
+				mediaTypeMismatch=".onMediaTypeMismatch"
+				fileTypeMismatch=".onFileTypeMismatch"
+				afterItemRemoved=".onAfterItemRemoved" >
 			<upload:toolbar>
 				<OverflowToolbar>
 				<ToolbarSpacer/>

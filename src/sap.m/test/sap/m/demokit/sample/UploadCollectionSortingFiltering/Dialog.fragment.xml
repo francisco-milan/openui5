@@ -3,7 +3,7 @@
 	xmlns:core="sap.ui.core">
 	<ViewSettingsDialog
 		title="Grouping, Sorting and Filtering of Items"
-		confirm="onViewSettingsConfirm">
+		confirm=".onViewSettingsConfirm">
 		<sortItems>
 			<ViewSettingsItem text="File Name" key="fileName" />
 			<ViewSettingsItem text="Uploaded By" key="uploadedBy" />

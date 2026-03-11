@@ -15,24 +15,24 @@
 					visible="{=!${device>/browser/mobile}}"
 					text="To add files, you can also use drag &amp; drop on your desktop or tablet." />
 				<ToolbarSpacer />
-				<Button icon="sap-icon://action-settings" tooltip="More settings" press="onOpenAppSettings" />
+				<Button icon="sap-icon://action-settings" tooltip="More settings" press=".onOpenAppSettings" />
 			</OverflowToolbar>
 			<UploadCollection
 				id="UploadCollection"
 				maximumFilenameLength="{settings>/maximumFilenameLength}"
 				maximumFileSize="{settings>/maximumFileSize}"
 				multiple="true"
-				change="onChange"
-				fileDeleted="onFileDeleted"
-				filenameLengthExceed="onFilenameLengthExceed"
-				fileRenamed="onFileRenamed"
-				fileSizeExceed="onFileSizeExceed"
+				change=".onChange"
+				fileDeleted=".onFileDeleted"
+				filenameLengthExceed=".onFilenameLengthExceed"
+				fileRenamed=".onFileRenamed"
+				fileSizeExceed=".onFileSizeExceed"
 				fileType="{fileTypes>/selected}"
-				selectionChange="onSelectionChange"
-				typeMissmatch="onTypeMissmatch"
-				uploadComplete="onUploadComplete"
-				beforeUploadStarts="onBeforeUploadStarts"
-				uploadTerminated="onUploadTerminated"
+				selectionChange=".onSelectionChange"
+				typeMissmatch=".onTypeMissmatch"
+				uploadComplete=".onUploadComplete"
+				beforeUploadStarts=".onBeforeUploadStarts"
+				uploadTerminated=".onUploadTerminated"
 				items="{
 					path: '/items',
 					templateShareable: false
@@ -46,18 +46,18 @@
 					<OverflowToolbar id="myId">
 						<Title id="attachmentTitle" />
 						<ToolbarSpacer />
-						<SearchField width="10rem" search="onSearch" />
+						<SearchField width="10rem" search=".onSearch" />
 						<Button
 							id="deleteSelectedButton"
 							text="Delete"
-							press="onDeleteSelectedItems"
+							press=".onDeleteSelectedItems"
 							enabled="false"
 							visible="false"
 							type="Transparent" />
 						<ToggleButton
 							id="selectAllButton"
 							text="Select all"
-							press="onSelectAllPress"
+							press=".onSelectAllPress"
 							enabled="false"
 							visible="false"
 							type="Transparent" />
@@ -83,7 +83,7 @@
 							<ObjectAttribute title="{title}"
 								text="{path : 'text', formatter : '.formatAttribute'}"
 								active="{active}"
-								press="onAttributePress" />
+								press=".onAttributePress" />
 						</attributes>
 						<statuses>
 							<ObjectStatus title="{title}"

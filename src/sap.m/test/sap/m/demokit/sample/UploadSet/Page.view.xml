@@ -18,24 +18,24 @@
 				uploadUrl="../../../../upload"
 				items="{path: '/items', templateShareable: false}"
 				mode="MultiSelect"
-				selectionChanged="onSelectionChange"
-				afterItemRemoved="onAfterItemRemoved">
+				selectionChanged=".onSelectionChange"
+				afterItemRemoved=".onAfterItemRemoved">
 			<upload:toolbar>
 				<OverflowToolbar>
 					<ToolbarSpacer/>
 					<Button
 							id="uploadSelectedButton"
 							text="Upload selected"
-							press="onUploadSelectedButton"/>
+							press=".onUploadSelectedButton"/>
 					<Button
 							id="downloadSelectedButton"
 							text="Download selected"
-							press="onDownloadSelectedButton"/>
+							press=".onDownloadSelectedButton"/>
 					<Button
 							id="versionButton"
 							enabled="false"
 							text="Upload a new version"
-							press="onVersionUpload"/>
+							press=".onVersionUpload"/>
 					<upload:UploadSetToolbarPlaceholder />
 				</OverflowToolbar>
 			</upload:toolbar>

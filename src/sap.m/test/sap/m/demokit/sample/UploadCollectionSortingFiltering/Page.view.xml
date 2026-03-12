@@ -26,14 +26,14 @@
 						type="Transparent"
 						icon="sap-icon://drop-down-list"
 						tooltip="View settings"
-						press="onViewSettingsPressed" />
+						press=".onViewSettingsPressed" />
 				</OverflowToolbar>
 			</toolbar>
 			<infoToolbar>
 				<Toolbar
 					id="idInfoToolbar"
 					active="true"
-					press="onInfoToolbarPressed"
+					press=".onInfoToolbarPressed"
 					visible="false">
 					<Label id="idInfoToolbarLabel" />
 					<ToolbarSpacer />

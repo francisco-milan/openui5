@@ -7,7 +7,7 @@ sap.ui.define([
 ], function (MobileLibrary, Controller, Item, JSONModel, Uploader) {
 	"use strict";
 
-	return Controller.extend("sap.m.sample.UploadSet.Page", {
+	return Controller.extend("sap.m.sample.UploadSetDirectoryUploads.Page", {
 		onInit: function () {
 			var sPath = sap.ui.require.toUrl("sap/m/sample/UploadSet/items.json");
 

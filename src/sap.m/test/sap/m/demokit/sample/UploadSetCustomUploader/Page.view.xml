@@ -17,10 +17,10 @@
 				mediaTypes="text/plain,application/msword,image/jpeg"
 				uploadUrl="../../../../upload"
 				uploadButtonInvisible="false"
-				fileRenamed="onFileRenamed"
+				fileRenamed=".onFileRenamed"
 				sameFilenameAllowed="false"
 				items="{path: '/items', templateShareable: false}"
-				afterItemRemoved="onAfterItemRemoved">
+				afterItemRemoved=".onAfterItemRemoved">
 			<upload:items>
 				<upload:UploadSetItem
 						fileName="{fileName}"

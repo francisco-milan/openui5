@@ -19,11 +19,11 @@
 				items="{path: '/items', templateShareable: false}"
 				mode="MultiSelect"
 				directory="true"
-				afterItemRemoved="onAfterItemRemoved">
+				afterItemRemoved=".onAfterItemRemoved">
 			<upload:toolbar>
 				<OverflowToolbar>
 					<ToolbarSpacer/>
-					 <SegmentedButton accessibleName="Upload modes" selectionChange="handleSelectionChange">
+					 <SegmentedButton accessibleName="Upload modes" selectionChange=".handleSelectionChange">
 						<items>
 							<SegmentedButtonItem text="Directory Mode" pressed="true"></SegmentedButtonItem>
 							<SegmentedButtonItem text="File Mode"></SegmentedButtonItem>

@@ -2,8 +2,8 @@
 	<App id="tileapp">
 		<TileContainer id="tiles">
 			<tiles>
-				<StandardTile id="testapp1" press="press" info="Some info text" title="Test Application 1" icon="sap-icon://newspaper"/>
-				<StandardTile press="press" info="Some info text" title="Second Tile" icon="sap-icon://nutrition-activity"/>
+				<StandardTile id="testapp1" press=".press" info="Some info text" title="Test Application 1" icon="sap-icon://newspaper"/>
+				<StandardTile press=".press" info="Some info text" title="Second Tile" icon="sap-icon://nutrition-activity"/>
 			</tiles>
 		</TileContainer>
 	</App>

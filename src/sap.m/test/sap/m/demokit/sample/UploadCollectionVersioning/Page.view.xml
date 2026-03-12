@@ -9,12 +9,12 @@
 			maximumFilenameLength="55"
 			maximumFileSize="10"
 			multiple="false"
-			change="onChange"
-			fileSizeExceed="onFileSizeExceed"
-			selectionChange="onSelectionChange"
-			typeMissmatch="onTypeMissmatch"
-			uploadComplete="onUploadComplete"
-			beforeUploadStarts="onBeforeUploadStarts"
+			change=".onChange"
+			fileSizeExceed=".onFileSizeExceed"
+			selectionChange=".onSelectionChange"
+			typeMissmatch=".onTypeMissmatch"
+			uploadComplete=".onUploadComplete"
+			beforeUploadStarts=".onBeforeUploadStarts"
 			items="{
 				path: '/items',
 				templateShareable: false
@@ -27,13 +27,13 @@
 					<Button
 						id="downloadButton"
 						text="Download"
-						press="onDownloadItem"
+						press=".onDownloadItem"
 						enabled="false"
 						type="Transparent" />
 					<Button
 						id="versionButton"
 						text="Upload a new version"
-						press="onVersion"
+						press=".onVersion"
 						enabled="false"
 						type="Transparent" />
 					<UploadCollectionToolbarPlaceholder/>

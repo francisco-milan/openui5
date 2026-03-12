@@ -11,7 +11,7 @@
 		<html:h2>HTMLView Modification Tests start below:</html:h2>
 		<mvc:HTMLView viewName="samples.components.ext_legacyAPIs.sap.Sub5" />
 		<core:Fragment fragmentName="samples.components.ext_legacyAPIs.sap.Frag1" type="XML" />
-		<Button text="Destroy Sub2 View (to check controller lifecycle method onExit)" press="destroySub2View" />
+		<Button text="Destroy Sub2 View (to check controller lifecycle method onExit)" press=".destroySub2View" />
 		<Text text="{path:'/number', formatter:'.formatNumber'}" tooltip="formatted number in SAP MainView"></Text>
 	</l:VerticalLayout>
 
